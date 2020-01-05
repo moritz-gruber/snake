@@ -37,6 +37,8 @@ class Player:
         # translate action into a keystroke to control the game
         self._generate_wasd_keystrokes(action)
 
+        pygame.time.wait(20)
+
     def my_bot(self, App):
         """
         Function that implements the bot, i.e., the function that takes the game state as input

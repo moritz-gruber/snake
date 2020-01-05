@@ -50,7 +50,7 @@ class App:
         self.player = SimplePlayer()
 
         # Initialize game parameters
-        self.step_duration = 10  # step duration in ms
+        self.step_duration = 30  # step duration in ms
         
     def on_init(self):
         """Initial game setup."""
@@ -178,8 +178,8 @@ class App:
 
             self.player(App=self)  # refer to Player.__call__ to understand this
 
-            if 1000*(time()-tstart) > (self.step_duration/2):
-                Warning('Your bot takes dangerously long. Try making it faster or increasing the step duration.')
+            if 1000*(time()-tstart) > (self.step_duration*0.75):
+                print('Your bot takes dangerously long. Try making it faster or increasing the step duration.')
 
         except:
             print(f'There was a critical error in {self.player.bot_name}.\nExiting game.')
@@ -191,6 +191,7 @@ class App:
 
         # If a new step was reached, check death and move to next step
         if 1000*(time()-self.timer) >= self.step_duration:
+            
             # Check if death will occur
             self.will_die = self._check_death()
             
