@@ -1,14 +1,23 @@
+'''
+A base class for snake player bots and several derived example players below.
+
+----------------------
+Author: Moritz Gruber
+Date:   January 2020
+----------------------
+'''
+
 import pygame 
 import numpy as np
 from time import time 
 import operator 
 
 
-class Player:
+class BasePlayer:
 
     """
     Parent class for snake player bots.
-    Create a class that inherits from this one and modify Player.my_bot.
+    Create a class that inherits from this one and modify the my_bot method.
     See examples below this class definition.
     """
     
@@ -16,6 +25,10 @@ class Player:
         """Constructs the Player."""
         self.permissible_actions = ('up', 'down', 'left', 'right', None)
         self.bot_name = 'template'
+    
+    def __repr__(self):
+        """Repr method simply returns bot name."""
+        return self.bot_name
 
     def __call__(self, App):
         """
@@ -96,7 +109,7 @@ class Player:
 # ----------------------- write your own bots below -----------------------------
 # -------------------------------------------------------------------------------
 
-class HumanPlayer(Player):
+class HumanPlayer(BasePlayer):
     def __init__(self):
         super().__init__()
         self.bot_name = 'human'
@@ -106,7 +119,7 @@ class HumanPlayer(Player):
         return None 
 
 
-class RandomPlayer(Player):
+class RandomPlayer(BasePlayer):
     def __init__(self):
         super().__init__()
         self.bot_name = 'random'
@@ -116,7 +129,7 @@ class RandomPlayer(Player):
         return np.random.choice(self.permissible_actions)
 
 
-class SimplePlayer(Player):
+class SimplePlayer(BasePlayer):
     
     def __init__(self):
         super().__init__()

@@ -7,8 +7,10 @@ $ python snake_game.py
 A framework is provided to create your own player BOT.
 Have a look at player.py and take it away!
 
+----------------------
 Author: Moritz Gruber
-Date: Jan 2020
+Date:   January 2020
+----------------------
 
 ------------------------------------------------------------------
 TBD:
@@ -22,7 +24,7 @@ TBD:
 
 import pygame
 from snake import Snake
-from player import HumanPlayer, SimplePlayer
+from player import *
 from copy import copy
 import numpy as np
 from time import time 

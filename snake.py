@@ -27,6 +27,11 @@ class Snake:
         
         # set cell size in pixels 
         self.cell_size = 10
+    
+    def __repr__(self):
+        """Repr method."""
+        
+        return f'I am a snake! My head is at {self.body[-1]} and I am currently going {self.current_direction}.'
 
     def change_direction(self, direction, return_copy=False):
         """Change direction of snake. If return_copy is True, the function will 
