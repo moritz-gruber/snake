@@ -48,8 +48,8 @@ class App:
         self.margin_left = self.margin_right = self.margin_bottom = 10
         self.cell_size = 10
 
-        # Set player. This is where bot methods can be supplied. 
-        self.player = SimplePlayer()
+        # Set player. This is where bot methods can be supplied. Try SimplePlayer or RandomPlayer!
+        self.player = HumanPlayer()
 
         # Initialize game parameters
         self.step_duration = 30  # step duration in ms

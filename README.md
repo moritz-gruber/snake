@@ -9,20 +9,20 @@ The repo contains 3 files.
 
 * `snake.py` contains a class that describes the snake itself
 * `player.py` contains a template class for players and some examples
-* `snake-game.py` contains the actual game
+* `snake_game.py` contains the actual game
 
 To run the game, execute
 ```
-$ python snake-game.py
+$ python snake_game.py
 ```
 By default, the code is set to human players. 
-Different players can be supplied in the `App.__init__` method in `snake-game.py`. 
+Different players can be supplied in the `App.__init__` method in `snake_game.py`. 
 
 ## How to create your own bot
 
 1. Briefly familiarize yourself with the `Snake` class in `snake.py`
-2. If you are new to pygame, try to understand some of its key principles (the loop, events, rendering) and how they are applied in `snake-game.py`
-3. Go to `player.py`, read the code, create a class that interhits from `Player` and implement the `my_bot` method.
-4. In `snake-game.py`, in `App.__init__` set `self.player` to an instance of your newly create player class. 
+2. If you are new to pygame, try to understand some of its key principles (the loop, events, rendering) and how they are applied in `snake_game.py`
+3. *Go to `player.py`, read the code, create a class that interhits from `BasePlayer` and implement the `my_bot` method.*
+4. In `snake_game.py`, in `App.__init__` set `self.player` to an instance of your newly create player class. 
 5. Launch the game and see how it performs! 
 
