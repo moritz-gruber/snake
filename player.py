@@ -191,3 +191,11 @@ def manhattan_distance(a,b):
     """Computes the manhattan distance between two points a and b given as lists or tuples."""
     return abs(a[0]-b[0]) + abs(a[1]-b[1])
 
+class DarwinSnake(BasePlayer):
+
+    def __init__(self):
+        super().__init__()
+        self.bot_name = 'DarwinSnake'
+
+    def my_bot(self, App):
+        return

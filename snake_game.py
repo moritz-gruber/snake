@@ -132,7 +132,7 @@ class App:
         # Select which snake to check
         if snake is not None:
             if not isinstance(snake, Snake):
-                raise ValueError(f'snake needs to be Snake.snake, not {type(snake)}.')
+                raise TypeError(f'snake needs to be Snake.snake, not {type(snake)}.')
             snake_to_check = snake
         else:
             snake_to_check = self.snake
@@ -281,4 +281,5 @@ class App:
 
 if __name__ == "__main__" :
     the_game = App()
+    the_game.player=SimplePlayer()
     the_game.on_execute()
