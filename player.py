@@ -10,7 +10,8 @@ Date:   January 2020
 import pygame 
 import numpy as np
 from time import time 
-import operator 
+import operator
+import NeuralNetwork as NN
 
 
 class BasePlayer:
@@ -191,3 +192,53 @@ def manhattan_distance(a,b):
     """Computes the manhattan distance between two points a and b given as lists or tuples."""
     return abs(a[0]-b[0]) + abs(a[1]-b[1])
 
+def obstacle_distance(body,App):
+        """Returns the distance in units App.grid_size to the closest obstacle in every direction"""
+        head=body[-1]
+        if len(body)==1:
+            l_dist=(head[0]-App.margin_left)
+            r_dist=(App.grid_size[0]+App.margin_left-head[0])
+            u_dist=(head[1]-App.margin_top)
+            d_dist=(App.margin_top+App.grid_size[1]-head[1])
+            return l_dist/App.grid_size[0],r_dist/App.grid_size[0],u_dist/App.grid_size[1],d_dist/App.grid_size[1]
+        
+
+        body_obstacles_l=np.where((body[:-1][1]==head[1] & body[:-1][0]<head[0]),body)
+        body_obstacles_r=np.where((body[:-1][1]==head[1] & body[:-1][0]>head[0]),body)
+        body_obstacles_u=np.where((body[:-1][0]==head[0] & body[:-1][1]>head[1]),body)
+        body_obstacles_d=np.where((body[:-1][0]==head[0] & body[:-1][1]<head[1]),body)
+
+        l_dist=min(head[0]-App.margin_left,min(head[0]-body_obstacles_l))
+        r_dist=min(App.grid_size[0]+App.margin_left-head[0],min(body_obstacles_r-head[0]))
+        u_dist=min(head[1]-App.margin_top,min(head[1]-body_obstacles_u))
+        d_dist=min(App.margin_top+App.grid_size[1]-head[1],min(body_obstacles_d-head[1]))
+
+        return l_dist/App.grid_size[0],r_dist/App.grid_size[0],u_dist/App.grid_size[1],d_dist/App.grid_size[1]
+
+class DarwinSnake(BasePlayer):
+
+    def __init__(self,Net):
+        super().__init__()
+        self.bot_name = 'DarwinSnake'
+        self.Net=Net
+        self.last_action=0
+        self.changes=-1
+
+    def my_bot(self, App):
+        snake = App.snake
+        food_pos = App.food_pos
+        body=snake.body
+        l_dist,r_dist,u_dist,d_dist=obstacle_distance(body,App)
+        food_pos_x=(food_pos[0]-App.margin_left)/App.grid_size[0]
+        food_pos_y=(food_pos[1]-App.margin_top)/App.grid_size[1]
+        head_x=(body[-1][0]-App.margin_left)/App.grid_size[0]
+        head_y=(body[-1][1]-App.margin_top)/App.grid_size[1]
+        ins=np.array([l_dist,r_dist,u_dist,d_dist,food_pos_x,food_pos_y,head_x,head_y])
+        self.Net.input=ins
+        #print("Inputs: "+str(ins))
+        output=self.Net.forward()[-1]
+        new_action=self.permissible_actions[np.argmax(output)]
+        if self.last_action!=new_action:
+            self.changes+=1
+        self.last_action=new_action
+        return new_action

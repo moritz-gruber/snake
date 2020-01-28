@@ -23,11 +23,13 @@ TBD:
 
 
 import pygame
+import pickle
 from snake import Snake
 from player import *
 from copy import copy
 import numpy as np
 from time import time 
+import NeuralNetwork as NN
 
 
 class App:
@@ -52,30 +54,33 @@ class App:
         self.player = HumanPlayer()
 
         # Initialize game parameters
-        self.step_duration = 30  # step duration in ms
+        self.step_duration = 50  # step duration in ms
+        self.mode="train"
         
     def on_init(self):
         """Initial game setup."""
         
         # Initialize pygame (I have no idea what this does)
         pygame.init()
-        print('Welcome to Le Serpent! Use WASD keys to play.')
-        pygame.display.set_caption('Le Serpent')
+        if self.mode=="play":
+            print('Welcome to Le Serpent! Use WASD keys to play.')
+            pygame.display.set_caption('Le Serpent')
 
         # Start a new game
         self._new_game()
 
         # Initialize graphical elements
-        self._display_surf = pygame.display.set_mode(self.window_size, pygame.HWSURFACE)
-        self.background = pygame.Surface(self.grid_size)
-        self._running = True
-        self.cell = pygame.Surface((self.snake.cell_size,self.snake.cell_size))
-        self.cell_image = copy(self.cell)
-        self.cell_image.fill((255,255,255))
-        self.head_image = copy(self.cell)
-        self.head_image.fill((255,0,0))
-        self.food_image = copy(self.cell)
-        self.food_image.fill((0,255,0))
+        if self.mode!="train":
+            self._display_surf = pygame.display.set_mode(self.window_size, pygame.HWSURFACE)
+            self.background = pygame.Surface(self.grid_size)
+            self._running = True
+            self.cell = pygame.Surface((self.snake.cell_size,self.snake.cell_size))
+            self.cell_image = copy(self.cell)
+            self.cell_image.fill((255,255,255))
+            self.head_image = copy(self.cell)
+            self.head_image.fill((255,0,0))
+            self.food_image = copy(self.cell)
+            self.food_image.fill((0,255,0))
 
         # Tell the on_execute method that everything is fine
         return True 
@@ -132,7 +137,7 @@ class App:
         # Select which snake to check
         if snake is not None:
             if not isinstance(snake, Snake):
-                raise ValueError(f'snake needs to be Snake.snake, not {type(snake)}.')
+                raise TypeError(f'snake needs to be Snake.snake, not {type(snake)}.')
             snake_to_check = snake
         else:
             snake_to_check = self.snake
@@ -174,7 +179,7 @@ class App:
     def on_loop(self):
         """This loop runs over and over while the game is running."""
 
-        # Listen for player inputs and execute corresponding moves 
+        # Listen for player inputs and execute corresponding moves
         try:
             tstart = time()
 
@@ -192,7 +197,7 @@ class App:
             self.on_event(event)
 
         # If a new step was reached, check death and move to next step
-        if 1000*(time()-self.timer) >= self.step_duration:
+        if (self.mode!="play" or (1000*(time()-self.timer) >= self.step_duration)):
             
             # Check if death will occur
             self.will_die = self._check_death()
@@ -204,6 +209,10 @@ class App:
             
             # Check if death has occurred
             if self.will_die:
+                if self.mode=="train":
+                    self._running=False
+                    return
+
                 print(f'You lost! You got {self.score["food_eaten"]} food with an average of {self.score["mean steps per food"]} steps per food.')
                 pygame.time.wait(3000)
                 self._new_game()
@@ -273,12 +282,58 @@ class App:
             self.on_loop()
             
             # Render the graphics
-            self.on_render()
+            if self.mode!="train":
+                self.on_render()               
+            
 
         # Pack up and leave
         self.on_cleanup()
             
+def find_starting_weights(n,it):
+    """This function makes use of the neuroevolutional alg to find the NNets that make the most direction changes"""
+    the_game=App()
+    the_game.mode="train"
+    
+    Gen=NN.generation(n,np.zeros(8),[8,5,4])
+
+    for _ in range(it):
+
+        for i, ind  in enumerate(Gen.individuals):
+            
+            the_game.player=DarwinSnake(ind)
+            the_game.on_execute()
+            print(the_game.player.changes)
+            Gen.scores[i]=the_game.player.changes
+            the_game._running=True     
+        the_game._running=False
+        print(Gen.scores)
+        Gen=Gen.evolve()
+        the_game._running=True
+    return Gen
 
 if __name__ == "__main__" :
-    the_game = App()
-    the_game.on_execute()
+
+    Gen=find_starting_weights(100,7 )
+    with open('./start_gen.pkl', 'wb') as output:
+        
+        pickle.dump(Gen, output, pickle.HIGHEST_PROTOCOL)
+    
+    """ the_game=App()
+    the_game.mode="play"
+    
+    Gen=NN.generation(100,np.zeros(8),[8,5,4])
+
+    while max(Gen.scores)<10:
+
+        for i, ind  in enumerate(Gen.individuals):
+            
+            the_game.player=DarwinSnake(ind)
+            the_game.on_execute()
+            print(+the_game.player.changes)
+            Gen.scores[i]=the_game.score["food_eaten"]+the_game.player.changes
+            the_game._running=True
+            
+
+        print(Gen.scores)   
+        Gen=Gen.evolve() """
+
