@@ -1,11 +1,13 @@
 import numpy as np
 
 
-def activation(x, thr=0.2):
+def activation_thr(x,thr=0.2):
     """"Treshold Activation Function"""
-
     return (x > thr).astype(int)
 
+def activation(x):
+    """Sigmoid activation function"""
+    return (1 / (1 + np.exp(-x)))
 
 class NNet:
     """Class of Neural Networks with variable number of layers"""
@@ -26,7 +28,7 @@ class NNet:
         self.layer_values = []
         for i in self.layers:
             self.layer_values.append(np.zeros(i))
-        self.layer_values[0] = x
+
 
         # initialize random weights
         self.weights = []
@@ -43,7 +45,7 @@ class NNet:
         self.y = np.zeros(lay[-1])
 
     def forward(self):
-
+        self.layer_values[0] = self.input
         for i in range(self.n_layers-1):
             self.layer_values[i+1] = activation(np.dot(self.layer_values[i], self.weights[i]))
         return self.layer_values
@@ -77,7 +79,7 @@ class generation:
             selection = (np.random.random_sample(np.shape(pair_scores)) < pair_scores)
 
             #Eliminate the pairs that successfully reproduced
-            pair_scores[selection]=0
+            #pair_scores[selection]=0
 
             #Save the corresponding pair indices
             pair_indices=np.where(selection)
@@ -89,7 +91,7 @@ class generation:
         """function that simulates the reproduction n parent pairs and returns the new generation"""
 
         mutation_prob = 0.2
-        mutation_factor = 0.1
+        mutation_factor = 0.01
 
         #Instantiate new generation
         new_gen=self
@@ -137,7 +139,9 @@ class generation:
         if scores_norm != 0:
 
             pair_scores = pair_scores / scores_norm
-
+        
+        else:
+            return generation(self.size,self.x,self.lay)
         parents1,parents2=self.speeddate(pair_scores)
         new_gen=self.reproduce(parents1,parents2)
 
